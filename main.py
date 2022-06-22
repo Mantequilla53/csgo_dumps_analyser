@@ -1,7 +1,10 @@
 import json
 import os
+
+import pandas as pd
 import requests
 import re
+import pandas
 
 from bs4 import BeautifulSoup
 
@@ -43,14 +46,23 @@ def collect_steam_parameters():
     steam_badges = soup.find('a', class_="persona_level_btn")['href']
 
     jsonDump = json.loads('{"cursor":"dumby"}')
-    while 'cursor' in jsonDump:
-        inventory_history_url_build = f'{steam_badges[:-6]}inventoryhistory/?ajax=1&cursor[time]={time}&cursor[time_frac]={time_frac}&cursor[s]={}&sessionid={sessionid[0]}&app[]={appid}'
+    df = pd.DataFrame(columns=["Item", "Icon URL"])
+    while jsonDump is None or 'cursor' in jsonDump:
+        inventory_history_url_build = f"{steam_badges[:-6]}inventoryhistory/?ajax=1&cursor[time]={time}&cursor[time_frac]={time_frac}&cursor[]={s}&sessionid={sessionid[0]}&app[]={appid}"
         print(inventory_history_url_build)
-        dump = requests.get(inventory_history_url_build, headers=headers)
-        jsonDump = json.loads(dump.text)
-        time = str(jsonDump['cursor']['time'])
-        s = str(jsonDump['cursor']['s'])
-        print(jsonDump)
+        try:
+            dump = requests.get(inventory_history_url_build, headers=headers)
+            jsonDump = json.loads(dump.text)
+            time = str(jsonDump['cursor']['time'])
+            s = str(jsonDump['cursor']['s'])
+            for id in jsonDump['descriptions'][appid]:
+                item = jsonDump['descriptions'][appid][id]
+                name = item["market_name"]
+                icon = f"https://community.cloudflare.steamstatic.com/economy/image/{item['icon_url']}/330x192"
+                df.loc[len(df.index)] = [name, icon]
+            df.to_csv("output.csv")
+        except(Exception):
+            print(f"Skipping: {Exception}")
 
 
 if __name__ == '__main__':
