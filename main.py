@@ -2,11 +2,12 @@ import datetime
 import json
 import os
 from time import sleep
-
 import pandas as pd
 import requests
 import re
-import pandas
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from bs4 import BeautifulSoup
 
@@ -28,7 +29,7 @@ def print_menu():
 def collect_steam_parameters():
     appid = '730'
 
-    steam_cookie = input('Enter your Steam Profile Cookies:')
+    steam_cookie = os.getenv('COOKIE') if len(os.getenv('COOKIE')) > 50 else input('Enter your Steam Profile Cookies:')
     sessionid = re.findall('sessionid=(\w+)', steam_cookie)
 
     time_frac = '0'
@@ -50,9 +51,8 @@ def collect_steam_parameters():
     jsonDump = json.loads('{"cursor":"dumby"}')
     df = pd.DataFrame(columns=["Image", "Item", "Icon URL"])
     startTime = datetime.datetime.now()
-    timeOfSkip = datetime.datetime.now()
 
-    countBeforeSkip = 0
+    pageCount = 0
     while jsonDump is None or 'cursor' in jsonDump:
         inventory_history_url_build = f"{steam_badges[:-6]}inventoryhistory/?ajax=1&cursor[time]={time}&cursor[time_frac]={time_frac}&cursor[]={s}&sessionid={sessionid[0]}&app[]={appid}"
         try:
@@ -65,15 +65,15 @@ def collect_steam_parameters():
                 name = item["market_name"]
                 iconurl = f"https://community.cloudflare.steamstatic.com/economy/image/{item['icon_url']}/330x192"
                 df.loc[len(df.index)] = [f'=IMAGE("{iconurl}")', name, iconurl]
-            countBeforeSkip += 1
+            pageCount += 1
+            print(f"{df.shape[0].__repr__()} records collected. Rate: {df.shape[0]/(datetime.datetime.now() - startTime).total_seconds():.2f}/s")
+            sleep(2)
             df.to_csv("output.csv")
         except(Exception):
-            print(f"Skipping after {countBeforeSkip} pages. {datetime.datetime.now() - timeOfSkip}")
-            sleep(30)
-            timeOfSkip = datetime.datetime.now()
-            countBeforeSkip = 0
+            print(f"Skipping after {pageCount} pages.")
+            sleep(5)
     endTime = datetime.datetime.now()
-    print(f"Dump complete at {endTime} (Elapsed: {endTime-startTime}) {df.shape[0]} transactions dumped.")
+    print(f"Dump complete at {endTime} (Elapsed: {endTime-startTime}) {df.shape[0]} transactions dumped over {pageCount} pages.")
 
 
 
