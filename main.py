@@ -45,8 +45,9 @@ def collect_steam_parameters():
     }
     steamprofile_url = 'https://steamcommunity.com/my'
     r = requests.get(steamprofile_url, headers=headers)
-    soup = BeautifulSoup(r.content, 'html.parser')
-    steam_badges = soup.find('a', class_="persona_level_btn")['href']
+    soupProfile = BeautifulSoup(r.content, 'html.parser')
+
+    steam_badges = soupProfile.find('a', class_="persona_level_btn")['href']
 
     jsonDump = json.loads('{"cursor":"dumby"}')
     df = pd.DataFrame(columns=["Image", "Item", "Icon URL"])
@@ -58,10 +59,16 @@ def collect_steam_parameters():
         try:
             dump = requests.get(inventory_history_url_build, headers=headers)
             jsonDump = json.loads(dump.text)
+            soupDump = BeautifulSoup(jsonDump['html'], 'html.parser')
+            allItemHtml = soupDump.find_all(class_="tradehistoryrow")
+
             time = str(jsonDump['cursor']['time'])
             s = str(jsonDump['cursor']['s'])
             for id in jsonDump['descriptions'][appid]:
                 item = jsonDump['descriptions'][appid][id]
+                classid = int(item['classid'])
+                #itemHtml = allItemHtml.find("a", attrs={"data-classid" : classid})
+                itemHtml = soupDump.select(f'a[data-classid="{classid}"]')
                 name = item["market_name"]
                 iconurl = f"https://community.cloudflare.steamstatic.com/economy/image/{item['icon_url']}/330x192"
                 df.loc[len(df.index)] = [f'=IMAGE("{iconurl}")', name, iconurl]
@@ -70,7 +77,7 @@ def collect_steam_parameters():
             sleep(2)
             df.to_csv("output.csv")
         except(Exception):
-            print(f"Skipping after {pageCount} pages.")
+            print(f"Skipping after {pageCount} pages. | {Exception.__repr__()}")
             sleep(5)
     endTime = datetime.datetime.now()
     print(f"Dump complete at {endTime} (Elapsed: {endTime-startTime}) {df.shape[0]} transactions dumped over {pageCount} pages.")
