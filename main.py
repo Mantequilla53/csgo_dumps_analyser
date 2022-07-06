@@ -1,40 +1,35 @@
-import datetime
-import json
-import os
-from time import sleep
-import pandas as pd
-import requests
-import re
+import threading
+import PySimpleGUI as sg
+from dumper import Dumper
 
-from bs4 import BeautifulSoup
-
-csgo_stats_mode = {
-    1: 'Dump CS:GO Inventory History',
-    2: 'Exit'
-}
+sg.theme('DarkAmber')
 
 
-def header():
-    print('CSGO Inventory History Advanced Analyzer')
 
+def main():
+    count = sg.Text()
+    layout = [
+        [sg.Text('CSGO Inventory History Advanced Analyzer')],
+        [sg.Text('Enter your cookies: '), sg.InputText()],
+        [sg.Submit('Start Dump'), sg.Cancel()],
+        [sg.Text(key='count')]
+    ]
 
-def print_menu():
-    for key in csgo_stats_mode.keys():
-        print(key, '--', csgo_stats_mode[key])
+    window = sg.Window('CSGOAnalyzer Dumper', layout)
+    while True:
+        event, values = window.read()
+        if event in (sg.WIN_CLOSED, 'Cancel'):
+            dumper.export()
+            break
+        if event in 'Start Dump':
+            window['Start Dump'].update(disabled=True)
+            dumper = Dumper(values[0])
+            threading.Thread(target=dumper.dump, daemon=True).start()
+
+        window['count'].update(value=f"{len(dumper.dumpedItems)} items found")
+
+    window.close()
+
 
 if __name__ == '__main__':
-    header()
-    while True:
-        print_menu()
-        smb_inventory_mode = ''
-        try:
-            smb_inventory_mode = int(input('Enter your choice: '))
-        except:
-            print('Wrong input. Please enter a number ...')
-        if smb_inventory_mode == 1:  # Dumps inventory into files from steam cookies
-            collect_steam_parameters()
-        elif smb_inventory_mode == 2:
-            print('')
-            exit()
-        else:
-            print('Invalid option. Please enter a number between 1 and 2.')
+    main()
