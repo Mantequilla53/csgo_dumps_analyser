@@ -32,7 +32,10 @@ class Dumper:
         self.dumpedItems = []
 
     def dump(self):
-        userId = self.getUserId()
+        try:
+            userId = self.getUserId()
+        except Exception:
+            raise ValueError("Invalid Cookies")
         startTime = datetime.datetime.now()
         lastPage = False
         while True:
@@ -69,7 +72,6 @@ class Dumper:
                     item.action = itemHtml.find(class_="tradehistory_event_description").text.strip('\t\r\n')
 
                     self.dumpedItems.append(item)
-                    print(item)
                 print(
                     f"{len(self.dumpedItems)} records collected. Rate: {len(self.dumpedItems) / (datetime.datetime.now() - startTime).total_seconds():.2f}/s")
                 sleep(2)
@@ -92,5 +94,5 @@ class Dumper:
         return f"{userId}inventoryhistory/?ajax=1&cursor[time]={self.time}&cursor[time_frac]=0&cursor[]={self.s}&sessionid={self.sessionId}&app[]={self.appid}"
 
     def export(self):
-        with open('output.txt', 'wb') as f:
+        with open(datetime.datetime.now().strftime("%d-%m-%Y %H%M%S.CSGOANALYZER"), 'wb') as f:
             json.dump(self.dumpedItems, codecs.getwriter('utf-8')(f), ensure_ascii=False, default=vars)
