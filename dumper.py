@@ -7,7 +7,7 @@ from time import sleep
 import requests
 from bs4 import BeautifulSoup
 
-from item import Item
+from item import Transaction
 
 
 def findHtmlDiv(allitemhtml, classname):
@@ -49,31 +49,43 @@ class Dumper:
             else:
                 lastPage = True
             try:
-                for id in jsonPage['descriptions'][self.appid]:
-                    item = Item()
-                    itemJson = jsonPage['descriptions'][self.appid][id]
-                    item.classId = itemJson['classid']
-                    item.name = itemJson["market_name"]
-                    item.type = itemJson["type"]
-                    item.icon = itemJson['icon_url']
-                    if 'icon_url_large' in itemJson:
-                        item.iconLarge = itemJson['icon_url_large']
-                    item.nameColor = itemJson['name_color']
+                for event in allItemHtml:
+                    item = Transaction()
+                    item.date = event.find(class_="tradehistory_date").contents[0].strip('\t\r\n')
+                    item.time = event.find(class_="tradehistory_timestamp").text
+                    item.action = event.find(class_="tradehistory_event_description").text.strip('\t\r\n')
 
-                    itemHtml = findHtmlDiv(allItemHtml, item.classId)
-                    tradeHistory = findHtmlDiv(itemHtml, item.classId)
-
-                    if tradeHistory:
-                        item.added = '+' in tradeHistory.find(class_="tradehistory_items_plusminus").contents[0].strip(
-                            '\t\r\n')
-
-                    item.date = itemHtml.find(class_="tradehistory_date").contents[0].strip('\t\r\n')
-                    item.time = itemHtml.find(class_="tradehistory_date").contents[1].text
-                    item.action = itemHtml.find(class_="tradehistory_event_description").text.strip('\t\r\n')
-
+                    give_take = event.find_all(class_="tradehistory_items")
+                    for action in give_take:
+                        plusminus = action.find(class_="tradehistory_items_plusminus").text
+                        even_items = action.find(class_="tradehistory_items_group").contents
+                        for x in even_items:
+                            id1 = re.search('data-classid=(\w)', x)
+                            id2 = re.search('data-instanceid=(\w)', x)
+                            if plusminus == "+":
+                                item.add_item(x.text)
+                            if plusminus == "-":
+                                item.sub_item(x.text)
                     self.dumpedItems.append(item)
-                print(
-                    f"{len(self.dumpedItems)} records collected. Rate: {len(self.dumpedItems) / (datetime.datetime.now() - startTime).total_seconds():.2f}/s")
+              # for id in jsonPage['descriptions'][self.appid]:
+              #      item = Item()
+              #      itemJson = jsonPage['descriptions'][self.appid][id]
+              #      item.classId = itemJson['classid']
+              #      item.name = itemJson["market_name"]
+              #      item.type = itemJson["type"]
+              #      item.icon = itemJson['icon_url']
+              #      if 'icon_url_large' in itemJson:
+              #          item.iconLarge = itemJson['icon_url_large']
+              #      item.nameColor = itemJson['name_color']
+
+              #      itemHtml = findHtmlDiv(allItemHtml, item.classId)
+              #      tradeHistory = findHtmlDiv(itemHtml, item.classId)
+
+              #      if tradeHistory:
+              #          item.added = '+' in tradeHistory.find(class_="tradehistory_items_plusminus").contents[0].strip(
+              #              '\t\r\n')
+              #  print(
+              #      f"{len(self.dumpedItems)} records collected. Rate: {len(self.dumpedItems) / (datetime.datetime.now() - startTime).total_seconds():.2f}/s")
                 sleep(2)
             except:
                 print("Skipping...")
@@ -95,4 +107,4 @@ class Dumper:
 
     def export(self):
         with open(datetime.datetime.now().strftime("%d-%m-%Y %H%M%S.CSGOANALYZER"), 'wb') as f:
-            json.dump(self.dumpedItems, codecs.getwriter('utf-8')(f), ensure_ascii=False, default=vars)
+            json.dump(self.dumpedItems, codecs.getwriter('utf-8')(f), ensure_ascii=False, default=vars, indent=4)
