@@ -18,7 +18,6 @@ class Transaction:
 
 class Item:
     def __init__(self):
-        self.jsonId = None
         self.name = None
         self.type = None
         self.iconUrl = None

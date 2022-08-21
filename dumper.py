@@ -5,7 +5,7 @@ import re
 from time import sleep
 
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
 from models import Transaction, Item
 
@@ -58,11 +58,11 @@ class Dumper:
                     give_take = event.find_all(class_="tradehistory_items")
                     for action in give_take:
                         plusminus = action.find(class_="tradehistory_items_plusminus").text
-                        event_items = action.find(class_="tradehistory_items_group").contents
+                        event_items = filter(lambda eventItem: type(eventItem) == Tag, action.find(class_="tradehistory_items_group").contents)
                         for x in event_items:
                             item = Item()
-                            item.jsonId = f"{x.attrs['data-classid']}_{x.attrs['data-instanceid']}"
-                            jsonItem = jsonPage['descriptions'][self.appid][item.jsonId]
+                            jsonId = f"{x.attrs['data-classid']}_{x.attrs['data-instanceid']}"
+                            jsonItem = jsonPage['descriptions'][self.appid][jsonId]
                             item.name = jsonItem['market_name']
                             item.iconUrl = jsonItem['icon_url']
                             item.nameColor = jsonItem['name_color']
@@ -73,9 +73,10 @@ class Dumper:
                             if plusminus == "-":
                                 transaction.sub_item(item)
                     self.dumpedItems.append(transaction)
+                print(f"Page complete. {len(self.dumpedItems)} transactions collected.")
                 sleep(2)
-            except Exception as e:
-                print("Skipping... " + print(e))
+            except Exception:
+                print("Skipping...")
             if lastPage:
                 break
         endTime = datetime.datetime.now()
@@ -94,4 +95,4 @@ class Dumper:
 
     def export(self):
         with open(datetime.datetime.now().strftime("%d-%m-%Y %H%M%S.CSGOANALYZER"), 'wb') as f:
-            json.dump(self.dumpedItems, codecs.getwriter('utf-8')(f), ensure_ascii=False, default=vars, indent=4)
+            json.dump(self.dumpedItems, codecs.getwriter('utf-8')(f), ensure_ascii=False, default=vars)
