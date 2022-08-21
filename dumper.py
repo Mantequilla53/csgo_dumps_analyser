@@ -5,9 +5,9 @@ import re
 from time import sleep
 
 import requests
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Tag
 
-from item import Item
+from models import Transaction, Item
 
 
 def findHtmlDiv(allitemhtml, classname):
@@ -32,7 +32,10 @@ class Dumper:
         self.dumpedItems = []
 
     def dump(self):
-        userId = self.getUserId()
+        try:
+            userId = self.getUserId()
+        except Exception:
+            raise ValueError("Invalid Cookies")
         startTime = datetime.datetime.now()
         lastPage = False
         while True:
@@ -46,34 +49,33 @@ class Dumper:
             else:
                 lastPage = True
             try:
-                for id in jsonPage['descriptions'][self.appid]:
-                    item = Item()
-                    itemJson = jsonPage['descriptions'][self.appid][id]
-                    item.classId = itemJson['classid']
-                    item.name = itemJson["market_name"]
-                    item.type = itemJson["type"]
-                    item.icon = itemJson['icon_url']
-                    if 'icon_url_large' in itemJson:
-                        item.iconLarge = itemJson['icon_url_large']
-                    item.nameColor = itemJson['name_color']
+                for event in allItemHtml:
+                    transaction = Transaction()
+                    transaction.date = event.find(class_="tradehistory_date").contents[0].strip('\t\r\n')
+                    transaction.time = event.find(class_="tradehistory_timestamp").text
+                    transaction.action = event.find(class_="tradehistory_event_description").text.strip('\t\r\n')
 
-                    itemHtml = findHtmlDiv(allItemHtml, item.classId)
-                    tradeHistory = findHtmlDiv(itemHtml, item.classId)
+                    give_take = event.find_all(class_="tradehistory_items")
+                    for action in give_take:
+                        plusminus = action.find(class_="tradehistory_items_plusminus").text
+                        event_items = filter(lambda eventItem: type(eventItem) == Tag, action.find(class_="tradehistory_items_group").contents)
+                        for x in event_items:
+                            item = Item()
+                            jsonId = f"{x.attrs['data-classid']}_{x.attrs['data-instanceid']}"
+                            jsonItem = jsonPage['descriptions'][self.appid][jsonId]
+                            item.name = jsonItem['market_name']
+                            item.iconUrl = jsonItem['icon_url']
+                            item.nameColor = jsonItem['name_color']
+                            item.type = jsonItem['type']
 
-                    if tradeHistory:
-                        item.added = '+' in tradeHistory.find(class_="tradehistory_items_plusminus").contents[0].strip(
-                            '\t\r\n')
-
-                    item.date = itemHtml.find(class_="tradehistory_date").contents[0].strip('\t\r\n')
-                    item.time = itemHtml.find(class_="tradehistory_date").contents[1].text
-                    item.action = itemHtml.find(class_="tradehistory_event_description").text.strip('\t\r\n')
-
-                    self.dumpedItems.append(item)
-                    print(item)
-                print(
-                    f"{len(self.dumpedItems)} records collected. Rate: {len(self.dumpedItems) / (datetime.datetime.now() - startTime).total_seconds():.2f}/s")
+                            if plusminus == "+":
+                                transaction.add_item(item)
+                            if plusminus == "-":
+                                transaction.sub_item(item)
+                    self.dumpedItems.append(transaction)
+                print(f"Page complete. {len(self.dumpedItems)} transactions collected.")
                 sleep(2)
-            except:
+            except Exception:
                 print("Skipping...")
             if lastPage:
                 break
@@ -92,5 +94,5 @@ class Dumper:
         return f"{userId}inventoryhistory/?ajax=1&cursor[time]={self.time}&cursor[time_frac]=0&cursor[]={self.s}&sessionid={self.sessionId}&app[]={self.appid}"
 
     def export(self):
-        with open('output.txt', 'wb') as f:
+        with open(datetime.datetime.now().strftime("%d-%m-%Y %H%M%S.CSGOANALYZER"), 'wb') as f:
             json.dump(self.dumpedItems, codecs.getwriter('utf-8')(f), ensure_ascii=False, default=vars)
