@@ -8,8 +8,18 @@ class Transaction:
         self.taken = []
 
     def add_item(self, item):
-        self.given.extend(item)
+        self.given.append(item)
+
     def sub_item(self, item):
-        self.taken.extend(item)
+        self.taken.append(item)
+
     def __repr__(self):
         return f'{self.date} {self.time} | {self.action}'
+
+class Item:
+    def __init__(self):
+        self.jsonId = None
+        self.name = None
+        self.type = None
+        self.iconUrl = None
+        self.nameColor = None

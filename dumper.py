@@ -7,7 +7,7 @@ from time import sleep
 import requests
 from bs4 import BeautifulSoup
 
-from item import Transaction
+from models import Transaction, Item
 
 
 def findHtmlDiv(allitemhtml, classname):
@@ -50,45 +50,32 @@ class Dumper:
                 lastPage = True
             try:
                 for event in allItemHtml:
-                    item = Transaction()
-                    item.date = event.find(class_="tradehistory_date").contents[0].strip('\t\r\n')
-                    item.time = event.find(class_="tradehistory_timestamp").text
-                    item.action = event.find(class_="tradehistory_event_description").text.strip('\t\r\n')
+                    transaction = Transaction()
+                    transaction.date = event.find(class_="tradehistory_date").contents[0].strip('\t\r\n')
+                    transaction.time = event.find(class_="tradehistory_timestamp").text
+                    transaction.action = event.find(class_="tradehistory_event_description").text.strip('\t\r\n')
 
                     give_take = event.find_all(class_="tradehistory_items")
                     for action in give_take:
                         plusminus = action.find(class_="tradehistory_items_plusminus").text
-                        even_items = action.find(class_="tradehistory_items_group").contents
-                        for x in even_items:
-                            id1 = re.search('data-classid=(\w)', x)
-                            id2 = re.search('data-instanceid=(\w)', x)
+                        event_items = action.find(class_="tradehistory_items_group").contents
+                        for x in event_items:
+                            item = Item()
+                            item.jsonId = f"{x.attrs['data-classid']}_{x.attrs['data-instanceid']}"
+                            jsonItem = jsonPage['descriptions'][self.appid][item.jsonId]
+                            item.name = jsonItem['market_name']
+                            item.iconUrl = jsonItem['icon_url']
+                            item.nameColor = jsonItem['name_color']
+                            item.type = jsonItem['type']
+
                             if plusminus == "+":
-                                item.add_item(x.text)
+                                transaction.add_item(item)
                             if plusminus == "-":
-                                item.sub_item(x.text)
-                    self.dumpedItems.append(item)
-              # for id in jsonPage['descriptions'][self.appid]:
-              #      item = Item()
-              #      itemJson = jsonPage['descriptions'][self.appid][id]
-              #      item.classId = itemJson['classid']
-              #      item.name = itemJson["market_name"]
-              #      item.type = itemJson["type"]
-              #      item.icon = itemJson['icon_url']
-              #      if 'icon_url_large' in itemJson:
-              #          item.iconLarge = itemJson['icon_url_large']
-              #      item.nameColor = itemJson['name_color']
-
-              #      itemHtml = findHtmlDiv(allItemHtml, item.classId)
-              #      tradeHistory = findHtmlDiv(itemHtml, item.classId)
-
-              #      if tradeHistory:
-              #          item.added = '+' in tradeHistory.find(class_="tradehistory_items_plusminus").contents[0].strip(
-              #              '\t\r\n')
-              #  print(
-              #      f"{len(self.dumpedItems)} records collected. Rate: {len(self.dumpedItems) / (datetime.datetime.now() - startTime).total_seconds():.2f}/s")
+                                transaction.sub_item(item)
+                    self.dumpedItems.append(transaction)
                 sleep(2)
-            except:
-                print("Skipping...")
+            except Exception as e:
+                print("Skipping... " + print(e))
             if lastPage:
                 break
         endTime = datetime.datetime.now()
