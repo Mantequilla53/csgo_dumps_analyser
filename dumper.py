@@ -43,6 +43,8 @@ class Dumper:
             jsonPage = json.loads(pageDump.text)
             soupPage = BeautifulSoup(jsonPage['html'], 'html.parser')
             allItemHtml = soupPage.find_all(class_="tradehistoryrow")
+            page_date = soupPage.find(class_="tradehistory_date")
+            print(page_date)
             if 'cursor' in jsonPage:
                 self.time = str(jsonPage['cursor']['time'])
                 self.s = str(jsonPage['cursor']['s'])
@@ -54,7 +56,6 @@ class Dumper:
                     transaction.date = event.find(class_="tradehistory_date").contents[0].strip('\t\r\n')
                     transaction.time = event.find(class_="tradehistory_timestamp").text
                     transaction.action = event.find(class_="tradehistory_event_description").text.strip('\t\r\n')
-
                     give_take = event.find_all(class_="tradehistory_items")
                     for action in give_take:
                         plusminus = action.find(class_="tradehistory_items_plusminus").text
@@ -62,21 +63,22 @@ class Dumper:
                         for x in event_items:
                             item = Item()
                             jsonId = f"{x.attrs['data-classid']}_{x.attrs['data-instanceid']}"
-                            jsonItem = jsonPage['descriptions'][self.appid][jsonId]
+                            alt_appid = x.attrs['data-appid']
+                            jsonItem = jsonPage['descriptions'][alt_appid][jsonId]
                             item.name = jsonItem['market_name']
                             item.iconUrl = jsonItem['icon_url']
                             item.nameColor = jsonItem['name_color']
                             item.type = jsonItem['type']
-
                             if plusminus == "+":
                                 transaction.add_item(item)
                             if plusminus == "-":
                                 transaction.sub_item(item)
                     self.dumpedItems.append(transaction)
                 print(f"Page complete. {len(self.dumpedItems)} transactions collected.")
-                sleep(2)
+                sleep(2.5)
             except Exception:
                 print("Skipping...")
+                print(allItemHtml)
             if lastPage:
                 break
         endTime = datetime.datetime.now()
@@ -95,4 +97,4 @@ class Dumper:
 
     def export(self):
         with open(datetime.datetime.now().strftime("%d-%m-%Y %H%M%S.CSGOANALYZER"), 'wb') as f:
-            json.dump(self.dumpedItems, codecs.getwriter('utf-8')(f), ensure_ascii=False, default=vars)
+            json.dump(self.dumpedItems, codecs.getwriter('utf-8')(f), ensure_ascii=False, default=vars, indent=4)
