@@ -40,18 +40,17 @@ class Dumper:
         lastPage = False
         while True:
             pageDump = requests.get(self.getInventoryLink(userId), headers=self.headers)
+            pageTime = datetime.datetime.now()
             jsonPage = json.loads(pageDump.text)
             soupPage = BeautifulSoup(jsonPage['html'], 'html.parser')
             allItemHtml = soupPage.find_all(class_="tradehistoryrow")
-            page_date = soupPage.find(class_="tradehistory_date")
-            print(page_date)
             if 'cursor' in jsonPage:
                 self.time = str(jsonPage['cursor']['time'])
                 self.s = str(jsonPage['cursor']['s'])
             else:
                 lastPage = True
-            try:
-                for event in allItemHtml:
+            for event in allItemHtml:
+                try:
                     transaction = Transaction()
                     transaction.date = event.find(class_="tradehistory_date").contents[0].strip('\t\r\n')
                     transaction.time = event.find(class_="tradehistory_timestamp").text
@@ -74,11 +73,13 @@ class Dumper:
                             if plusminus == "-":
                                 transaction.sub_item(item)
                     self.dumpedItems.append(transaction)
-                print(f"Page complete. {len(self.dumpedItems)} transactions collected.")
-                sleep(2.5)
-            except Exception:
-                print("Skipping...")
-                print(allItemHtml)
+                except Exception as e:
+                    print(str(e))
+                    print(event)
+            print(f"Page complete. {len(self.dumpedItems)} transactions collected.")
+            pageElapsed = (datetime.datetime.now() - pageTime).total_seconds()
+            if pageElapsed > 0 and pageElapsed < 2000:
+                sleep(2 - pageElapsed)
             if lastPage:
                 break
         endTime = datetime.datetime.now()
