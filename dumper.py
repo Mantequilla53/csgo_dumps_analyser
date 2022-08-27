@@ -31,7 +31,7 @@ class Dumper:
         self.sessionId = re.search('sessionid=(\w+)', cookie)
         self.dumpedItems = []
 
-    def dump(self):
+    def dump(self, window):
         try:
             userId = self.getUserId()
         except Exception:
@@ -42,8 +42,7 @@ class Dumper:
             pageDump = requests.get(self.getInventoryLink(userId), headers=self.headers)
             pageTime = datetime.datetime.now()
             jsonPage = json.loads(pageDump.text)
-            soupPage = BeautifulSoup(jsonPage['html'], 'html.parser')
-            allItemHtml = soupPage.find_all(class_="tradehistoryrow")
+            allItemHtml = BeautifulSoup(jsonPage['html'], 'html.parser').find_all(class_="tradehistoryrow")
             if 'cursor' in jsonPage:
                 self.time = str(jsonPage['cursor']['time'])
                 self.s = str(jsonPage['cursor']['s'])
@@ -58,27 +57,31 @@ class Dumper:
                     give_take = event.find_all(class_="tradehistory_items")
                     for action in give_take:
                         plusminus = action.find(class_="tradehistory_items_plusminus").text
-                        event_items = filter(lambda eventItem: type(eventItem) == Tag, action.find(class_="tradehistory_items_group").contents)
-                        for x in event_items:
-                            item = Item()
-                            jsonId = f"{x.attrs['data-classid']}_{x.attrs['data-instanceid']}"
-                            alt_appid = x.attrs['data-appid']
-                            jsonItem = jsonPage['descriptions'][alt_appid][jsonId]
-                            item.name = jsonItem['market_name']
-                            item.iconUrl = jsonItem['icon_url']
-                            item.nameColor = jsonItem['name_color']
-                            item.type = jsonItem['type']
-                            if plusminus == "+":
-                                transaction.add_item(item)
-                            if plusminus == "-":
-                                transaction.sub_item(item)
+                        if plusminus is not None:
+                            event_items = filter(lambda eventItem: type(eventItem) == Tag, action.find(class_="tradehistory_items_group").contents)
+                            for x in event_items:
+                                item = Item()
+                                jsonId = f"{x.attrs['data-classid']}_{x.attrs['data-instanceid']}"
+                                alt_appid = x.attrs['data-appid']
+                                jsonItem = jsonPage['descriptions'][alt_appid][jsonId]
+                                item.name = jsonItem['market_name']
+                                item.iconUrl = jsonItem['icon_url']
+                                item.nameColor = jsonItem['name_color']
+                                item.type = jsonItem['type']
+                                if plusminus == "+":
+                                    transaction.add_item(item)
+                                if plusminus == "-":
+                                    transaction.sub_item(item)
                     self.dumpedItems.append(transaction)
+                    sleep(0.02)
+                    window['status'].update(f"{len(self.dumpedItems)} transactions found. Currently at {transaction.date}")
+                    window.refresh()
                 except Exception as e:
                     print(str(e))
                     print(event)
             print(f"Page complete. {len(self.dumpedItems)} transactions collected.")
             pageElapsed = (datetime.datetime.now() - pageTime).total_seconds()
-            if pageElapsed > 0 and pageElapsed < 2000:
+            if pageElapsed < 2:
                 sleep(2 - pageElapsed)
             if lastPage:
                 break

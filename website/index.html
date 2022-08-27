@@ -1,0 +1,20 @@
+<html>
+<header>
+    <title>CSGO Analyzer</title>
+    <script type='text/javascript' src='scripts/knockout-3.5.1.js'></script>
+    <script src="scripts/main.js"></script>
+    <link rel="stylesheet" href="style/main.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</header>
+
+<div class="upload-container">
+    <input type="file" id="file_upload" accept=".CSGOANALYZER" onchange="fileSelected(event)" />
+</div>
+
+<div class="transaction" data-bind="foreach: fileJson">
+    <h6 data-bind: "text: action"></h6>
+    <h6 data-bind: "text: date"></h6>
+    <h6 data-bind: "text: time"></h6>
+</div>
+
+</html>

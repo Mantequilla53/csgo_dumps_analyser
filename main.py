@@ -10,7 +10,7 @@ def main():
         [sg.Text('CSGO Inventory History Advanced Analyzer')],
         [sg.Text('Enter your cookies: '), sg.InputText()],
         [sg.Submit('Start Dump'), sg.Cancel()],
-        [sg.Text(f"0 items found - you need to start the dump.", key='status')]
+        [sg.Text(f"0 transactions found - you need to start the dump.", key='status')]
     ]
 
     window = sg.Window('CSGOAnalyzer Dumper', layout)
@@ -26,12 +26,7 @@ def main():
             except ValueError as e:
                 sg.popup_error(e)
                 window['Start Dump'].update(disabled=False)
-            threading.Thread(target=dumper.dump, daemon=True).start()
-
-        window['status'].update(f"{len(dumper.dumpedItems)} items found")
-        print(len(dumper.dumpedItems))
-        window.refresh()
-
+            threading.Thread(target=dumper.dump, args=(window,), daemon=True).start()
     window.close()
 
 
