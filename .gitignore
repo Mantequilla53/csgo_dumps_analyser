@@ -1,3 +1,5 @@
 /output.csv
 /output.txt
-/*.CSGOANALYZER
+/dumps/
+/logs/
+/dist/

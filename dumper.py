@@ -1,13 +1,24 @@
 import codecs
 import datetime
 import json
+import os
 import re
+import logging
 from time import sleep
 
 import requests
 from bs4 import BeautifulSoup, Tag
+os.makedirs("logs", exist_ok=True)
+os.makedirs("dumps", exist_ok=True)
+logging.basicConfig(filename=datetime.datetime.now().strftime("logs/CSGOAnalyzer%d-%m-%Y%H%M%S.log"),
+                    format='%(asctime)s %(levelname)s %(message)s',
+                    filemode='w')
+logging.getLogger().addHandler(logging.StreamHandler())
 
 from models import Transaction, Item
+
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
 
 def findHtmlDiv(allitemhtml, classname):
@@ -58,7 +69,8 @@ class Dumper:
                     for action in give_take:
                         plusminus = action.find(class_="tradehistory_items_plusminus").text
                         if plusminus is not None:
-                            event_items = filter(lambda eventItem: type(eventItem) == Tag, action.find(class_="tradehistory_items_group").contents)
+                            event_items = filter(lambda eventItem: type(eventItem) == Tag,
+                                                 action.find(class_="tradehistory_items_group").contents)
                             for x in event_items:
                                 item = Item()
                                 jsonId = f"{x.attrs['data-classid']}_{x.attrs['data-instanceid']}"
@@ -74,20 +86,20 @@ class Dumper:
                                     transaction.sub_item(item)
                     self.dumpedItems.append(transaction)
                     sleep(0.02)
-                    window['status'].update(f"{len(self.dumpedItems)} transactions found. Currently at {transaction.date}")
+                    window['status'].update(
+                        f"{len(self.dumpedItems)} transactions found. Currently at {transaction.date}")
                     window.refresh()
                 except Exception as e:
-                    print(str(e))
-                    print(event)
-            print(f"Page complete. {len(self.dumpedItems)} transactions collected.")
+                    logger.error(str(e))
+                    logger.error(event.text)
+            logger.info(f"Page complete. {len(self.dumpedItems)} transactions collected.")
             pageElapsed = (datetime.datetime.now() - pageTime).total_seconds()
             if pageElapsed < 2:
                 sleep(2 - pageElapsed)
             if lastPage:
                 break
         endTime = datetime.datetime.now()
-        print(
-            f"Dump complete at {endTime} (Elapsed: {endTime - startTime}) {len(self.dumpedItems)} transactions collected")
+        logger.info(f"Dump complete at {endTime} (Elapsed: {endTime - startTime}) {len(self.dumpedItems)} transactions collected")
 
     def getUserId(self):
         r = requests.get(self.steamprofile_url, headers=self.headers)
@@ -100,5 +112,5 @@ class Dumper:
         return f"{userId}inventoryhistory/?ajax=1&cursor[time]={self.time}&cursor[time_frac]=0&cursor[]={self.s}&sessionid={self.sessionId}&app[]={self.appid}"
 
     def export(self):
-        with open(datetime.datetime.now().strftime("%d-%m-%Y %H%M%S.CSGOANALYZER"), 'wb') as f:
+        with open(datetime.datetime.now().strftime("dumps/%d-%m-%Y %H%M%S.CSGOANALYZER"), 'wb') as f:
             json.dump(self.dumpedItems, codecs.getwriter('utf-8')(f), ensure_ascii=False, default=vars, indent=4)

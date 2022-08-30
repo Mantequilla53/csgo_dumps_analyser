@@ -4,7 +4,6 @@ from dumper import Dumper
 
 sg.theme('DarkAmber')
 
-
 def main():
     layout = [
         [sg.Text('CSGO Inventory History Advanced Analyzer')],
@@ -12,12 +11,12 @@ def main():
         [sg.Submit('Start Dump'), sg.Cancel()],
         [sg.Text(f"0 transactions found - you need to start the dump.", key='status')]
     ]
-
     window = sg.Window('CSGOAnalyzer Dumper', layout)
     while True:
         event, values = window.read()
         if event in (sg.WIN_CLOSED, 'Cancel'):
-            dumper.export()
+            if dumper is not None:
+                dumper.export()
             break
         if event in 'Start Dump':
             window['Start Dump'].update(disabled=True)
