@@ -99,6 +99,7 @@ class Dumper:
             if lastPage:
                 break
         endTime = datetime.datetime.now()
+        window['status'].update(f"Dump complete at {endTime} (Elapsed: {endTime - startTime}) {len(self.dumpedItems)} transactions collected")
         logger.info(f"Dump complete at {endTime} (Elapsed: {endTime - startTime}) {len(self.dumpedItems)} transactions collected")
 
     def getUserId(self):

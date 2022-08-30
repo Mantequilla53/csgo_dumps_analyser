@@ -4,12 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a13cc0e7-0f35-4b7d-9880-19cac589baf0" name="Changes" comment="frontend init&#10;fixed dumper UI">
-      <change afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="a13cc0e7-0f35-4b7d-9880-19cac589baf0" name="Changes" comment="logging, executable">
       <change beforePath="$PROJECT_DIR$/dumper.py" beforeDir="false" afterPath="$PROJECT_DIR$/dumper.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -94,7 +90,14 @@
       <option name="project" value="LOCAL" />
       <updated>1661623651867</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="logging, executable">
+      <created>1661831689103</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1661831689103</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -113,7 +116,8 @@
     <MESSAGE value="updated" />
     <MESSAGE value="added slight optimization to sleep timer&#10;moved error handling to transaction, not entire page." />
     <MESSAGE value="frontend init&#10;fixed dumper UI" />
-    <option name="LAST_COMMIT_MESSAGE" value="frontend init&#10;fixed dumper UI" />
+    <MESSAGE value="logging, executable" />
+    <option name="LAST_COMMIT_MESSAGE" value="logging, executable" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
