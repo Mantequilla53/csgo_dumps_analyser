@@ -1,0 +1,22 @@
+<html>
+
+<div class="upload-container">
+    <input type="file" id="file_upload" accept=".CSGOANALYZER" (change)="fileSelected($event)" />
+</div>
+
+<div style="background-color: gray;" *ngFor="let tran of trans">
+    <p>{{tran.date}} {{tran.time}}</p>
+    <p>{{tran.action}}</p>
+    <div class="gained" *ngFor="let item of tran.given">
+        <h1 [style.color]="item.nameColor">{{item.name}}</h1>
+        <img [src]="formatIcon(item.iconUrl)">
+        <p>{{item.type}}</p>
+    </div>
+    <div class="lost" *ngFor="let item of tran.taken">
+        <h1 [style.color]="item.nameColor">{{item.name}}</h1>
+        <img [src]="formatIcon(item.iconUrl)">
+        <p>{{item.type}}</p>
+    </div>
+</div>
+
+</html>

@@ -4,8 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a13cc0e7-0f35-4b7d-9880-19cac589baf0" name="Changes" comment="logging, executable">
-      <change beforePath="$PROJECT_DIR$/dumper.py" beforeDir="false" afterPath="$PROJECT_DIR$/dumper.py" afterDir="false" />
+    <list default="true" id="a13cc0e7-0f35-4b7d-9880-19cac589baf0" name="Changes" comment="pip requirements.txt">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/website/scripts/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/website/scripts/main.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,7 +28,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/main.py" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunManager">
@@ -97,7 +98,21 @@
       <option name="project" value="LOCAL" />
       <updated>1661831689103</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="fix completion status">
+      <created>1661831839069</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1661831839069</updated>
+    </task>
+    <task id="LOCAL-00007" summary="pip requirements.txt">
+      <created>1661832146889</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1661832146889</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -117,7 +132,9 @@
     <MESSAGE value="added slight optimization to sleep timer&#10;moved error handling to transaction, not entire page." />
     <MESSAGE value="frontend init&#10;fixed dumper UI" />
     <MESSAGE value="logging, executable" />
-    <option name="LAST_COMMIT_MESSAGE" value="logging, executable" />
+    <MESSAGE value="fix completion status" />
+    <MESSAGE value="pip requirements.txt" />
+    <option name="LAST_COMMIT_MESSAGE" value="pip requirements.txt" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
