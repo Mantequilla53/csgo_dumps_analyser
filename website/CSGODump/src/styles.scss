@@ -1,0 +1,102 @@
+/* You can add global styles to this file, and also import other style files */
+
+$theme: #bbe018;
+$dark-text: #5f6982;
+body {
+    animation: theme 21s linear infinite;
+    &:after,
+    &:before {
+        content: '';
+        display: block;
+        position: fixed;
+        z-index: -1;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        width: 100vmax;
+        height: 100vmax;
+        background: rgba(0, 0, 0, 0.05);
+        animation: background 90s linear infinite;
+    }
+    &:after {
+        left: 15vw;
+    }
+    &:before {
+        right: 15vw;
+        animation-delay: -30s;
+        animation-direction: reverse;
+    }
+}
+
+@keyframes theme {
+    0% {
+        background: $theme;
+    }
+    16% {
+        background: #5DBDB6;
+    }
+    33% {
+        background: #59D4E1;
+    }
+    50% {
+        background: #51BCE8;
+    }
+    66% {
+        background: #FA5374;
+    }
+    83% {
+        background: #E46653;
+    }
+    100% {
+        background: $theme;
+    }
+}
+
+@keyframes background {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.top10 {
+    padding-top: 10px;
+}
+
+.main {
+    width: 80%;
+    height: 80%
+}
+
+.center {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+.glass {
+    margin: 10px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.61);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(11.7px);
+    -webkit-backdrop-filter: blur(11.7px);
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    color: white;
+    h1 {
+        text-align: center;
+    }
+    p {
+        font-size: larger
+    }
+}
+
+.item-img {
+    width: 25%;
+    height: auto;
+}
