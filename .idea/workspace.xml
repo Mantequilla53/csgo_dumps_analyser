@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="a13cc0e7-0f35-4b7d-9880-19cac589baf0" name="Changes" comment="pip requirements.txt">
+    <list default="true" id="a13cc0e7-0f35-4b7d-9880-19cac589baf0" name="Changes" comment="ANGULAR app">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/website/scripts/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/website/scripts/main.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -112,7 +111,14 @@
       <option name="project" value="LOCAL" />
       <updated>1661832146889</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="ANGULAR app">
+      <created>1662851093393</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1662851093393</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -134,7 +140,8 @@
     <MESSAGE value="logging, executable" />
     <MESSAGE value="fix completion status" />
     <MESSAGE value="pip requirements.txt" />
-    <option name="LAST_COMMIT_MESSAGE" value="pip requirements.txt" />
+    <MESSAGE value="ANGULAR app" />
+    <option name="LAST_COMMIT_MESSAGE" value="ANGULAR app" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

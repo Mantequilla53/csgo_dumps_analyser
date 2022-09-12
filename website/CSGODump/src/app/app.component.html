@@ -1,22 +1,66 @@
 <html>
 
-<div class="upload-container">
-    <input type="file" id="file_upload" accept=".CSGOANALYZER" (change)="fileSelected($event)" />
+<div class="uploader glass center" *ngIf="trans.length == 0" (dragover)="onDragOver($event)" (drop)="onDropSuccess($event)">
+    <h1>Select your .CSGOANALYZER dump</h1>
+    <input type="file" id="file-upload" accept=".CSGOANALYZER" (change)="fileSelected($event)" />
+    <label for="file-upload" id="file-drag">
+      <div id="start">
+        <fa-icon [icon]="faUpload" aria-hidden="true"></fa-icon>
+        <div>Select a file or drag here</div>
+        <span id="file-upload-btn" class="btn btn-primary">Select a file</span>
+      </div>
+    </label>
 </div>
 
-<div style="background-color: gray;" *ngFor="let tran of trans">
-    <p>{{tran.date}} {{tran.time}}</p>
-    <p>{{tran.action}}</p>
-    <div class="gained" *ngFor="let item of tran.given">
-        <h1 [style.color]="item.nameColor">{{item.name}}</h1>
-        <img [src]="formatIcon(item.iconUrl)">
-        <p>{{item.type}}</p>
-    </div>
-    <div class="lost" *ngFor="let item of tran.taken">
-        <h1 [style.color]="item.nameColor">{{item.name}}</h1>
-        <img [src]="formatIcon(item.iconUrl)">
-        <p>{{item.type}}</p>
+<div class="dashboard center main" *ngIf="trans.length != 0">
+    <div class="row">
+        <div class="glass col-xl">
+            <h1>Summary</h1>
+            <p>Total Transactions: {{trans.length}}</p>
+            <p>Latest Transaction: {{this.trans[0].date}}</p>
+            <p>Oldest Transaction: {{this.trans[this.trans.length-1].date}}</p>
+        </div>
+        <div class="glass col-xl">
+            <h1>Case Analyzer</h1>
+            <p>Total Containers Opened: {{cases['totalContainers'].length}}</p>
+            <p>Total Cases Opened: {{cases['totalContainers'].length - cases['stickerCounts']}}</p>
+            <p>Total Sticker Capsules Opened: {{cases['stickerCounts']}}</p>
+            <!--<p>Reds: {{ cases.filter(x => x.given[0].type.contains("Covert")).length }}</p>-->
+        </div>
     </div>
 </div>
+
+
+<ng-template #content let-offcanvas>
+    <div class="offcanvas-header">
+        <h4 class="offcanvas-title" id="offcanvas-basic-title">All Transactions</h4>
+        <button type="button" class="btn-close" aria-label="Close" (click)="offcanvas.dismiss('Cross click')"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div *ngFor="let tran of trans">
+            <p>{{tran.date}} {{tran.time}}</p>
+            <p>{{tran.action}}</p>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="gained" *ngFor="let item of tran.given">
+                        <h4 [style.color]="'#' + item.nameColor">{{item.name}}</h4>
+                        <img [src]="formatIcon(item.iconUrl)" class="item-img">
+                        <p>{{item.type}}</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="lost" *ngFor="let item of tran.taken">
+                        <h4 [style.color]="'#' + item.nameColor">{{item.name}}</h4>
+                        <img [src]="formatIcon(item.iconUrl)" class="item-img">
+                        <p>{{item.type}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+
+<button class="fixed-bottom" (click)="open(content)">Launch demo offcanvas</button>
 
 </html>
