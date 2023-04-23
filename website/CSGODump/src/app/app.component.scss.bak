@@ -4,10 +4,6 @@ h1 {
     color: $theme
 }
 
-.mat-card-title {
-    color: $theme
-}
-
 .gained {
     background-color: green;
     width: 80%
@@ -16,9 +12,7 @@ h1 {
 .lost {
     background-color: red;
     width: 80%
-}
-
-.uploader {
+}.uploader {
     display: block;
     clear: both;
     margin: 0 auto;
