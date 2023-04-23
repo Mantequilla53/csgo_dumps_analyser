@@ -1,13 +1,13 @@
 import codecs
 import datetime
 import json
+import os
 import re
+import logging
 from time import sleep
 
 import requests
 from bs4 import BeautifulSoup, Tag
-<<<<<<< Updated upstream
-=======
 
 os.makedirs("logs", exist_ok=True)
 os.makedirs("dumps", exist_ok=True)
@@ -16,9 +16,11 @@ logging.basicConfig(filename=datetime.datetime.now().strftime(
                     format='%(asctime)s %(levelname)s %(message)s',
                     filemode='w')
 logging.getLogger().addHandler(logging.StreamHandler())
->>>>>>> Stashed changes
 
 from models import Transaction, Item
+
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
 
 def findHtmlDiv(allitemhtml, classname):
@@ -43,7 +45,7 @@ class Dumper:
         self.sessionId = re.search('sessionid=(\w+)', cookie)
         self.dumpedItems = []
 
-    def dump(self):
+    def dump(self, window):
         try:
             userId = self.getUserId()
         except Exception:
@@ -51,12 +53,6 @@ class Dumper:
         startTime = datetime.datetime.now()
         lastPage = False
         while True:
-<<<<<<< Updated upstream
-            pageDump = requests.get(self.getInventoryLink(userId), headers=self.headers)
-            jsonPage = json.loads(pageDump.text)
-            soupPage = BeautifulSoup(jsonPage['html'], 'html.parser')
-            allItemHtml = soupPage.find_all(class_="tradehistoryrow")
-=======
             pageDump = requests.get(self.getInventoryLink(userId),
                                     headers=self.headers)
             pageTime = datetime.datetime.now()
@@ -64,48 +60,14 @@ class Dumper:
             allItemHtml = BeautifulSoup(
                 jsonPage['html'],
                 'html.parser').find_all(class_="tradehistoryrow")
->>>>>>> Stashed changes
             if 'cursor' in jsonPage:
                 self.time = str(jsonPage['cursor']['time'])
                 self.s = str(jsonPage['cursor']['s'])
             else:
                 lastPage = True
-            try:
-                for event in allItemHtml:
+            for event in allItemHtml:
+                try:
                     transaction = Transaction()
-<<<<<<< Updated upstream
-                    transaction.date = event.find(class_="tradehistory_date").contents[0].strip('\t\r\n')
-                    transaction.time = event.find(class_="tradehistory_timestamp").text
-                    transaction.action = event.find(class_="tradehistory_event_description").text.strip('\t\r\n')
-
-                    give_take = event.find_all(class_="tradehistory_items")
-                    for action in give_take:
-                        plusminus = action.find(class_="tradehistory_items_plusminus").text
-                        event_items = filter(lambda eventItem: type(eventItem) == Tag, action.find(class_="tradehistory_items_group").contents)
-                        for x in event_items:
-                            item = Item()
-                            jsonId = f"{x.attrs['data-classid']}_{x.attrs['data-instanceid']}"
-                            jsonItem = jsonPage['descriptions'][self.appid][jsonId]
-                            item.name = jsonItem['market_name']
-                            item.iconUrl = jsonItem['icon_url']
-                            item.nameColor = jsonItem['name_color']
-                            item.type = jsonItem['type']
-
-                            if plusminus == "+":
-                                transaction.add_item(item)
-                            if plusminus == "-":
-                                transaction.sub_item(item)
-                    self.dumpedItems.append(transaction)
-                print(f"Page complete. {len(self.dumpedItems)} transactions collected.")
-                sleep(2)
-            except Exception:
-                print("Skipping...")
-            if lastPage:
-                break
-        endTime = datetime.datetime.now()
-        print(
-            f"Dump complete at {endTime} (Elapsed: {endTime - startTime}) {len(self.dumpedItems)} transactions collected")
-=======
                     transaction.date = event.find(
                         class_="tradehistory_date").contents[0].strip('\t\r\n')
                     transaction.time = event.find(
@@ -160,7 +122,6 @@ class Dumper:
         logger.info(
             f"Dump complete at {endTime} (Elapsed: {endTime - startTime}) {len(self.dumpedItems)} transactions collected"
         )
->>>>>>> Stashed changes
 
     def getUserId(self):
         r = requests.get(self.steamprofile_url, headers=self.headers)
@@ -174,10 +135,6 @@ class Dumper:
         return f"{userId}inventoryhistory/?ajax=1&cursor[time]={self.time}&cursor[time_frac]=0&cursor[]={self.s}&sessionid={self.sessionId}&app[]={self.appid}"
 
     def export(self):
-<<<<<<< Updated upstream
-        with open(datetime.datetime.now().strftime("%d-%m-%Y %H%M%S.CSGOANALYZER"), 'wb') as f:
-            json.dump(self.dumpedItems, codecs.getwriter('utf-8')(f), ensure_ascii=False, default=vars)
-=======
         with open(
                 datetime.datetime.now().strftime(
                     "dumps/%d-%m-%Y %H%M%S.CSGOANALYZER"), 'wb') as f:
@@ -186,4 +143,3 @@ class Dumper:
                       ensure_ascii=False,
                       default=vars,
                       indent=4)
->>>>>>> Stashed changes
