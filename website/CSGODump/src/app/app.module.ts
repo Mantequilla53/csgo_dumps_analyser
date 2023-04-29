@@ -1,19 +1,21 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatCardModule } from '@angular/material/card';
-import { MatGridListModule } from '@angular/material/grid-list'
+import { MatGridListModule } from '@angular/material/grid-list';
+import { TransactionGridComponent } from './transaction-grid/transaction-grid.component';
+import { HomeComponent } from './home/home.component'
 
 
 
 @NgModule({
   declarations: [
-    AppComponent
+    TransactionGridComponent,
+    HomeComponent
   ],
   imports: [
     BrowserModule,
@@ -26,6 +28,6 @@ import { MatGridListModule } from '@angular/material/grid-list'
     MatGridListModule
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [HomeComponent]
 })
 export class AppModule { }

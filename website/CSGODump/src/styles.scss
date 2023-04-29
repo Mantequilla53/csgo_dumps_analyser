@@ -94,6 +94,12 @@ body {
     p {
         font-size: larger
     }
+    button {
+        background: rgba(0, 0, 0, 0.8);
+        color: $theme;
+        border-radius: 8px;
+        border: none;
+    }
 }
 
 .item-img {
