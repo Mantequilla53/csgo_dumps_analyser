@@ -4,6 +4,7 @@ import json
 import os
 import re
 import logging
+import time
 from time import sleep
 
 import requests
@@ -21,6 +22,7 @@ from models import Transaction, Item
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
+
 
 
 def findHtmlDiv(allitemhtml, classname):
@@ -45,12 +47,13 @@ class Dumper:
         self.sessionId = re.search('sessionid=(\w+)', cookie)
         self.dumpedItems = []
 
-    def dump(self, window):
+    def dump(self, window, RPC):
         try:
             userId = self.getUserId()
         except Exception:
             raise ValueError("Invalid Cookies")
         startTime = datetime.datetime.now()
+        lastUpdate = time.time()
         lastPage = False
         while True:
             pageDump = requests.get(self.getInventoryLink(userId),
@@ -103,6 +106,14 @@ class Dumper:
                     window['status'].update(
                         f"{len(self.dumpedItems)} transactions found. Currently at {transaction.date}"
                     )
+                    if (time.time() - lastUpdate) > 15:
+                        RPC.update(
+                            details="Dumping their inventory history to be analyzed",
+                            state=f"{len(self.dumpedItems)} transactions dumped",
+                            start=startTime.timestamp(),
+                            buttons=[{"label": "CSGOAnalyzer", "url": "https://csgoanalyzer.com"}]
+                        )
+                        lastUpdate = time.time()
                     window.refresh()
                 except Exception as e:
                     logger.error(str(e))
@@ -118,6 +129,12 @@ class Dumper:
         endTime = datetime.datetime.now()
         window['status'].update(
             f"Dump complete at {endTime} (Elapsed: {endTime - startTime}) {len(self.dumpedItems)} transactions collected"
+        )
+        RPC.update(
+            details="Dump completed. Ready for analysis.",
+            state=f"{len(self.dumpedItems)} transactions dumped",
+            start=startTime.timestamp(),
+            buttons=[{"label": "CSGOAnalyzer", "url": "https://csgoanalyzer.com"}]
         )
         logger.info(
             f"Dump complete at {endTime} (Elapsed: {endTime - startTime}) {len(self.dumpedItems)} transactions collected"

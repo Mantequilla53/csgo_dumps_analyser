@@ -1,12 +1,12 @@
 /output.csv
 /output.txt
-/*.CSGOANALYZER
+*.CSGOANALYZER
 /__pycache__/*
 .gitignore
 /.vscode/*
 /.idea/*
 /logs/*
-/dumps/*
+*.JSON
 /website/CSGODump/node_modules/*
 /website/CSGODump/.angular/cache/*
 /dist/*
