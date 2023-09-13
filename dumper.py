@@ -9,6 +9,12 @@ from time import sleep
 
 import requests
 from bs4 import BeautifulSoup, Tag
+os.makedirs("logs", exist_ok=True)
+os.makedirs("dumps", exist_ok=True)
+logging.basicConfig(filename=datetime.datetime.now().strftime("logs/CSGOAnalyzer%d-%m-%Y%H%M%S.log"),
+                    format='%(asctime)s %(levelname)s %(message)s',
+                    filemode='w')
+logging.getLogger().addHandler(logging.StreamHandler())
 
 os.makedirs("logs", exist_ok=True)
 os.makedirs("dumps", exist_ok=True)
@@ -22,7 +28,6 @@ from models import Transaction, Item
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
-
 
 
 def findHtmlDiv(allitemhtml, classname):

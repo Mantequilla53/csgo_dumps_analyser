@@ -13,9 +13,8 @@ def main():
         [sg.Text('CSGO Inventory History Advanced Analyzer')],
         [sg.Text('Enter your cookies: '), sg.InputText()],
         [sg.Submit('Start Dump'), sg.Cancel()],
-        [sg.Text(f"0 items found - you need to start the dump.", key='status')]
+        [sg.Text(f"0 transactions found - you need to start the dump.", key='status')]
     ]
-
     window = sg.Window('CSGOAnalyzer Dumper', layout)
     RPC.update(
         details="Searching for Steam Cookie to begin..",
@@ -24,7 +23,8 @@ def main():
     while True:
         event, values = window.read()
         if event in (sg.WIN_CLOSED, 'Cancel'):
-            dumper.export()
+            if dumper is not None:
+                dumper.export()
             break
         if event in 'Start Dump':
             window['Start Dump'].update(disabled=True)
